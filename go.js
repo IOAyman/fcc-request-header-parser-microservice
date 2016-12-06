@@ -6,16 +6,19 @@ const app = express()
 
 
 // routes
-app.all('/', (req, res) => {
-  res.json({ message: 'not implemented!' })
+app.use((req, res, next) => {
+  let { ip:ipaddress } = req
+  let { 'accept-language':language, 'user-agent': software } = req.headers
+
+  // parse ipv4
+  ipaddress = /([0-9]{1,3}\.){3}[0-9]{1,3}/.exec(ipaddress)[0]
+  // format languages
+  language = language.replace(/[;,\.0-9=q]/g, ' ').replace(/\s+/g, ';')
+  // extract data
+  software = /\(.*\)/.exec(software).join(';').replace(/\(|\)/g, '')
+
+  res.json({ ipaddress, language, software })
 })
-
-// Woops!
-app.use((req, res, next) => res.end(`
-Hi, you curious (^_^). I'm Ayman Nedjmeddine.
-repo: https://github.com/IOAyman/fcc-request-header-parser-microservice.git
-`))
-
 
 // go!
 app.on('error', console.error)
